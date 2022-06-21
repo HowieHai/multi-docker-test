@@ -1,0 +1,34 @@
+version: "3.4"
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+  backend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./back-app
+    volumes:
+      - /app/node_modules
+      - ./back-app:/app
+  frontend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./front-app
+    volumes:
+      - /app/node_modules
+      - ./front-app:/app
+    environment:
+      - WDS_SOCKET_PORT=0
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - "3001:80"
+    depends_on:
+      - frontend
+      - backend
